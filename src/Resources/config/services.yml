@@ -1,5 +1,5 @@
 services:
     bldr_execute.execute:
-        class: Bldr\Extension\Execute\Service\ExecuteService
+        class: Bldr\Extension\Execute\Call\ExecuteCall
         tags:
           - { name: exec }
