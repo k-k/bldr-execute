@@ -1,24 +1,20 @@
 {
-    "name": "bldr-io/bldr-execute",
-    "description": "Bldr.io Execute Extension",
-    "license": "MIT",
-    "require": {
-       "bldr-io/bldr": "dev-master"
+    "name":              "bldr-io/bldr-execute",
+    "description":       "Bldr.io Execute Extension",
+    "license":           "MIT",
+    "require-dev":       {
+        "bldr-io/bldr": "dev-master"
     },
-    "require-dev": {
-        "symfony/config":               "~2.5.0@dev",
-        "symfony/dependency-injection": "~2.5.0@dev"
-    },
-    "authors": [
+    "authors":           [
         {
-            "name": "Aaron Scherer",
+            "name":  "Aaron Scherer",
             "email": "aequasi@gmail.com"
         }
     ],
     "minimum-stability": "dev",
-    "autoload": {
-      "psr-4": {
-        "Bldr\\Extension\\Execute\\": "src/"
-      }
+    "autoload":          {
+        "psr-4": {
+            "Bldr\\Extension\\Execute\\": "src/"
+        }
     }
 }

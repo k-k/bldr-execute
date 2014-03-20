@@ -56,7 +56,7 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
 
         $status = proc_close($process);
 
-        if ($this->failOnError && $status ===  1) {
+        if ($this->failOnError && !in_array($status, $this->successStatusCodes)) {
             throw new \Exception("Failed on the $this->taskName task.");
         }
     }
