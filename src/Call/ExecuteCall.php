@@ -32,7 +32,7 @@ class ExecuteCall implements \Bldr\Call\CallInterface
         }
 
         ob_implicit_flush(true);
-        ob_end_flush();
+        @ob_end_flush();
         flush();
 
         $descriptorspec = array(
@@ -48,5 +48,7 @@ class ExecuteCall implements \Bldr\Call\CallInterface
                 $output->writeln($s);
             }
         }
+
+        proc_close($process);
     }
 }
