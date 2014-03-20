@@ -43,17 +43,14 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
         $pipes = [];
 
         $process = proc_open($command, $descriptorspec, $pipes);
-        $this->output->writeln("");
+
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
+
+        $this->output->write(["\n", $formatter->formatSection($this->taskName, "Starting")]);
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
-                $this->output->write(
-                    $formatter->formatSection(
-                        $this->taskName,
-                        $s
-                    )
-                );
+                $this->output->write($formatter->formatSection($this->taskName, $s));
             }
         }
 
