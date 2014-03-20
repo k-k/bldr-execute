@@ -1,0 +1,4 @@
+services:
+    bldr_execute.execute:
+        class: Bldr\Extension\Execute\Service\ExecuteService
+        tags: { name: exec }

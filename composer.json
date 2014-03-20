@@ -2,10 +2,19 @@
     "name": "bldr-io/bldr-execute",
     "description": "Bldr.io Execute Extension",
     "license": "MIT",
+    "require": {
+       "bldr-io/bldr": "dev-master"
+    },
     "require-dev": {
         "symfony/config":               "dev-master",
         "symfony/dependency-injection": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "https://github.com/bldr-io/bldr.git"
+        }
+    ],
     "authors": [
         {
             "name": "Aaron Scherer",
