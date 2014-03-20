@@ -1,0 +1,17 @@
+{
+    "name": "bldr/bldr-execute",
+    "description": "Bldr.io Execute Extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aaron Scherer",
+            "email": "aequasi@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+      "psr-4": {
+        "Bldr\\Extension\\Execute\\": "src/"
+      }
+    }
+}
