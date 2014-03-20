@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE
  */
 
-namespace Bldr\Extension\Execute\Service;
+namespace Bldr\Extension\Execute\Call;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
