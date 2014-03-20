@@ -12,21 +12,21 @@
 namespace Bldr\Extension\Execute\Call;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\FormatterHelper;
 
 /**
  * @author Aaron Scherer <aaron@undergroundelephant.com>
  */
-class ExecuteCall implements \Bldr\Call\CallInterface
+class ExecuteCall extends \Bldr\Call\AbstractCall
 {
     /**
      * {@inheritDoc}
      *
      * Logic obtained from http://stackoverflow.com/a/6144213/248903
      */
-    public function run(OutputInterface $output, array $arguments)
+    public function run(array $arguments)
     {
         $command = '';
-
         foreach ($arguments as $argument) {
             $command .= $argument . ' ';
         }
@@ -43,9 +43,17 @@ class ExecuteCall implements \Bldr\Call\CallInterface
         $pipes = [];
 
         $process = proc_open($command, $descriptorspec, $pipes);
+        $this->output->writeln("");
+        /** @var FormatterHelper $formatter */
+        $formatter = $this->helperSet->get('formatter');
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
-                $output->writeln($s);
+                $this->output->writeln(
+                    $formatter->formatSection(
+                        $this->taskName,
+                        $s
+                    )
+                );
             }
         }
 
