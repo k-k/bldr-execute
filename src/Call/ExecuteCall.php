@@ -47,13 +47,17 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
 
-        $this->output->write(["\n", $formatter->formatSection($this->taskName, "Starting"), "\n"]);
+        $this->output->write([$formatter->formatSection($this->taskName, $arguments[0]), "\n"]);
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
                 $this->output->write($formatter->formatSection($this->taskName, $s));
             }
         }
 
-        proc_close($process);
+        $status = proc_close($process);
+
+        if ($this->failOnError && $status ===  1) {
+            throw new \Exception("Failed on the $this->taskName task.");
+        }
     }
 }
