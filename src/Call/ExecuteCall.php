@@ -47,7 +47,7 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
 
-        $this->output->write(["\n", $formatter->formatSection($this->taskName, "Starting")]);
+        $this->output->write(["\n", $formatter->formatSection($this->taskName, "Starting"), "\n"]);
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
                 $this->output->write($formatter->formatSection($this->taskName, $s));
