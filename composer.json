@@ -6,15 +6,9 @@
        "bldr-io/bldr": "dev-master"
     },
     "require-dev": {
-        "symfony/config":               "dev-master",
-        "symfony/dependency-injection": "dev-master"
+        "symfony/config":               "~2.5.0@dev",
+        "symfony/dependency-injection": "~2.5.0@dev"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url":  "https://github.com/bldr-io/bldr.git"
-        }
-    ],
     "authors": [
         {
             "name": "Aaron Scherer",
