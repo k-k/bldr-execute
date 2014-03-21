@@ -53,10 +53,12 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
             }
         }
 
+        $errors = stream_get_contents($pipes[2]);
+
         $status = proc_close($process);
 
         if ($this->failOnError && !in_array($status, $this->successStatusCodes)) {
-            throw new \Exception("Failed on the $this->taskName task.");
+            throw new \Exception("Failed on the $this->taskName task.\n" . $errors);
         }
     }
 }
