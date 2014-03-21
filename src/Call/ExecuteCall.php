@@ -11,7 +11,6 @@
 
 namespace Bldr\Extension\Execute\Call;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\FormatterHelper;
 
 /**
