@@ -28,15 +28,9 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
      */
     public function run(array $arguments)
     {
-        if ($this->call->has('output')) {
-            $append       = $this->call->has('append') && $this->call->append ? 'a' : 'w';
-            $stream       = fopen($this->call->output, $append);
-            $this->output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, true);
-        }
 
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
-
 
         $this->findTokens($arguments);
 
@@ -58,9 +52,21 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
             );
         }
 
+        if ($this->output->isVerbose()) {
+            $this->output->writeln($process->getCommandLine());
+        }
+
+        if ($this->call->has('output')) {
+            $append = $this->call->has('append') && $this->call->append ? 'a' : 'w';
+            $stream = fopen($this->call->output, $append);
+            $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, true);
+        } else {
+            $output = $this->output;
+        }
+
         $process->run(
-            function ($type, $buffer) {
-                $this->output->write($buffer);
+            function ($type, $buffer) use ($output) {
+                $output->write($buffer);
             }
         );
 
