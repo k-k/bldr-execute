@@ -35,6 +35,8 @@ class ApplyCall extends ExecuteCall
      */
     public function run(array $arguments)
     {
+        $this->setFileset($this->call->fileset);
+
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
 
