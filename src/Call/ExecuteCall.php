@@ -12,9 +12,12 @@
 namespace Bldr\Extension\Execute\Call;
 
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
- * @author Aaron Scherer <aaron@undergroundelephant.com>
+ * @author Aaron Scherer <aequasi@gmail.com>
  */
 class ExecuteCall extends \Bldr\Call\AbstractCall
 {
@@ -25,40 +28,36 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
      */
     public function run(array $arguments)
     {
-        $command = '';
-        foreach ($arguments as $argument) {
-            $command .= $argument . ' ';
+        if ($this->call->has('output')) {
+            $append = $this->call->has('append') && $this->call->append ? 'a' : 'w';
+            $stream = fopen($this->call->output, $append);
+            $this->output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, true);
         }
-
-        ob_implicit_flush(true);
-        @ob_end_flush();
-        flush();
-
-        $descriptorspec = array(
-            0 => array("pipe", "r"), // stdin is a pipe that the child will read from
-            1 => array("pipe", "w"), // stdout is a pipe that the child will write to
-            2 => array("pipe", "w") // stderr is a pipe that the child will write to
-        );
-        $pipes = [];
-
-        $process = proc_open($command, $descriptorspec, $pipes);
 
         /** @var FormatterHelper $formatter */
         $formatter = $this->helperSet->get('formatter');
 
-        $this->output->write([$formatter->formatSection($this->taskName, $arguments[0]), "\n"]);
-        if (is_resource($process)) {
-            while ($s = fgets($pipes[1])) {
-                $this->output->write($formatter->formatSection($this->taskName, $s));
-            }
+        $builder = new ProcessBuilder($arguments);
+        $process = $builder->getProcess();
+
+        if (get_class($this) === 'Bldr\Extension\Execute\Call\ExecuteCall') {
+            $this->output->writeln(
+                [
+                    "",
+                    $formatter->formatSection($this->task->getName(), 'Starting'),
+                    ""
+                ]
+            );
         }
 
-        $errors = stream_get_contents($pipes[2]);
+        $process->run(
+            function ($type, $buffer) {
+                $this->output->write($buffer);
+            }
+        );
 
-        $status = proc_close($process);
-
-        if ($this->failOnError && !in_array($status, $this->successStatusCodes)) {
-            throw new \Exception("Failed on the $this->taskName task.\n" . $errors);
+        if ($this->failOnError && !in_array($process->getExitCode(), $this->successStatusCodes)) {
+            throw new \Exception("Failed on the {$this->task->getName()} task.\n" . $process->getErrorOutput());
         }
     }
 }
