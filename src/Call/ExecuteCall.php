@@ -12,6 +12,7 @@
 namespace Bldr\Extension\Execute\Call;
 
 use Bldr\Application;
+use Bldr\Call\AbstractCall;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Process\ProcessBuilder;
@@ -19,7 +20,7 @@ use Symfony\Component\Process\ProcessBuilder;
 /**
  * @author Aaron Scherer <aequasi@gmail.com>
  */
-class ExecuteCall extends \Bldr\Call\AbstractCall
+class ExecuteCall extends AbstractCall
 {
     /**
      * {@inheritDoc}
@@ -90,7 +91,7 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
     }
 
     /**
-     * Tokenizes the given string
+     * Tokenize the given string
      *
      * @param string $argument
      *
