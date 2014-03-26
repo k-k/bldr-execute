@@ -11,11 +11,10 @@
 
 namespace Bldr\Extension\Execute\Call;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\FormatterHelper;
 
 /**
- * @author Aaron Scherer <aaron@undergroundelephant.com>
+ * @author Aaron Scherer <aequasi@gmail.com>
  */
 class ApplyCall extends ExecuteCall
 {
@@ -36,6 +35,19 @@ class ApplyCall extends ExecuteCall
      */
     public function run(array $arguments)
     {
+        $this->setFileset($this->getCall()->fileset);
+
+        /** @var FormatterHelper $formatter */
+        $formatter = $this->getHelperSet()->get('formatter');
+
+        $this->getOutput()->writeln(
+            [
+                "",
+                $formatter->formatSection($this->getTask()->getName(), 'Starting'),
+                ""
+            ]
+        );
+
         foreach ($this->files as $file) {
             $args   = $arguments;
             $args[] = $file;

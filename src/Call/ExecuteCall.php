@@ -11,11 +11,13 @@
 
 namespace Bldr\Extension\Execute\Call;
 
-use Symfony\Component\Console\Output\OutputInterface;
+use Bldr\Application;
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
- * @author Aaron Scherer <aaron@undergroundelephant.com>
+ * @author Aaron Scherer <aequasi@gmail.com>
  */
 class ExecuteCall extends \Bldr\Call\AbstractCall
 {
@@ -26,38 +28,88 @@ class ExecuteCall extends \Bldr\Call\AbstractCall
      */
     public function run(array $arguments)
     {
-        $command = '';
-        foreach ($arguments as $argument) {
-            $command .= $argument . ' ';
-        }
-
-        ob_implicit_flush(true);
-        @ob_end_flush();
-        flush();
-
-        $descriptorspec = array(
-            0 => array("pipe", "r"), // stdin is a pipe that the child will read from
-            1 => array("pipe", "w"), // stdout is a pipe that the child will write to
-            2 => array("pipe", "w") // stderr is a pipe that the child will write to
-        );
-        $pipes = [];
-
-        $process = proc_open($command, $descriptorspec, $pipes);
 
         /** @var FormatterHelper $formatter */
-        $formatter = $this->helperSet->get('formatter');
+        $formatter = $this->getHelperSet()->get('formatter');
 
-        $this->output->write([$formatter->formatSection($this->taskName, $arguments[0]), "\n"]);
-        if (is_resource($process)) {
-            while ($s = fgets($pipes[1])) {
-                $this->output->write($formatter->formatSection($this->taskName, $s));
+        $this->findTokens($arguments);
+
+        $builder = new ProcessBuilder($arguments);
+
+        if ($this->getCall()->has('cwd')) {
+            $builder->setWorkingDirectory($this->getCall()->cwd);
+        }
+
+        $process = $builder->getProcess();
+
+        if (get_class($this) === 'Bldr\Extension\Execute\Call\ExecuteCall') {
+            $this->getOutput()->writeln(
+                [
+                    "",
+                    $formatter->formatSection($this->getTask()->getName(), 'Starting'),
+                    ""
+                ]
+            );
+        }
+
+        if ($this->getOutput()->isVerbose()) {
+            $this->getOutput()->writeln($process->getCommandLine());
+        }
+
+        if ($this->getCall()->has('output')) {
+            $append = $this->getCall()->has('append') && $this->getCall()->append ? 'a' : 'w';
+            $stream = fopen($this->getCall()->output, $append);
+            $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, true);
+        } else {
+            $output = $this->getOutput();
+        }
+
+        $process->run(
+            function ($type, $buffer) use ($output) {
+                $output->write($buffer);
+            }
+        );
+
+        if ($this->getCall()->has('failOnError') && $this->getCall()->failOnError) {
+            if ($this->getCall()->has('successCodes') && !in_array($process->getExitCode(), $this->getCall()->successCodes)) {
+                throw new \Exception("Failed on the {$this->getTask()->getName()} task.\n" . $process->getErrorOutput());
             }
         }
+    }
 
-        $status = proc_close($process);
-
-        if ($this->failOnError && !in_array($status, $this->successStatusCodes)) {
-            throw new \Exception("Failed on the $this->taskName task.");
+    /**
+     * Runs the tokenizer on all the arguments
+     *
+     * @param string[] $arguments
+     */
+    private function findTokens(array &$arguments)
+    {
+        foreach ($arguments as $index => $argument) {
+            $arguments[$index] = $this->replaceTokens($argument);
         }
+    }
+
+    /**
+     * Tokenizes the given string
+     *
+     * @param string $argument
+     *
+     * @return string
+     */
+    private function replaceTokens($argument)
+    {
+        $token_format = '/\$(.+)\$/';
+
+        preg_match_all($token_format, $argument, $matches, PREG_SET_ORDER);
+
+        if (sizeof($matches) < 1) {
+            return $argument;
+        }
+
+        foreach ($matches as $match) {
+            $argument = str_replace($match[0], Application::$$match[1], $argument);
+        }
+
+        return $argument;
     }
 }
